@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Student API</title>
+</head>
+
+<body>
+  <h1>Student API</h1>
+
+  <h2>Pagination</h2>
+  <div>
+    <label for="page">Page:</label>
+    <input type="number" id="page" min="1" value="1">
+    <button onclick="fetchStudents()">Get Students</button>
+  </div>
+  <ul id="paginationResults"></ul>
+
+  <h2>Filtering</h2>
+  <div>
+    <label for="filterId">Filter by ID:</label>
+    <input type="number" id="filterId">
+    <button onclick="filterById()">Filter</button>
+  </div>
+
+  <div>
+    <label for="filterName">Filter by Name:</label>
+    <input type="text" id="filterName">
+    <button onclick="filterByName()">Filter</button>
+  </div>
+  <ul id="filteringResults"></ul>
+
+  <script>
+    // Base URL for the local API
+    const baseUrl = 'http://localhost:3000';
+
+    // Pagination API endpoint URL
+    const paginationUrl = `${baseUrl}/students`;
+
+    // Filtering API endpoint URL
+    const filteringUrl = `${baseUrl}/students/filter`;
+
+    // Function to fetch students for pagination
+    function fetchStudents() {
+      const page = document.getElementById('page').value;
+      const url = `${paginationUrl}?page=${page}`;
+
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          const resultsContainer = document.getElementById('paginationResults');
+          resultsContainer.innerHTML = '';
+
+          data.data.forEach(student => {
+            const listItem = document.createElement('li');
+            listItem.textContent = `${student.name} - Total Marks: ${student.totalMarks}`;
+            resultsContainer.appendChild(listItem);
+          });
+        })
+        .catch(error => console.log(error));
+    }
+
+    // Function to filter students by ID
+    function filterById() {
+      const id = document.getElementById('filterId').value;
+      const url = filteringUrl;
+
+      fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ filterValue: id })
+      })
+        .then(response => response.json())
+        .then(data => {
+          const resultsContainer = document.getElementById('filteringResults');
+          resultsContainer.innerHTML = '';
+
+          data.data.forEach(student => {
+            const listItem = document.createElement('li');
+            listItem.textContent = `${student.name} - Total Marks: ${student.totalMarks}`;
+            resultsContainer.appendChild(listItem);
+          });
+        })
+        .catch(error => console.log(error));
+    }
+
+    // Function to filter students by name
+    function filterByName() {
+      const name = document.getElementById('filterName').value;
+      const url = filteringUrl;
+
+      fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ filterValue: name })
+      })
+        .then(response => response.json())
+        .then(data => {
+          const resultsContainer = document.getElementById('filteringResults');
+          resultsContainer.innerHTML = '';
+
+          data.data.forEach(student => {
+            const listItem = document.createElement('li');
+            listItem.textContent = `${student.name} - Total Marks: ${student.totalMarks}`;
+            resultsContainer.appendChild(listItem);
+          });
+        })
+       
+    }
