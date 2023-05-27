@@ -32,83 +32,94 @@
   <ul id="filteringResults"></ul>
 
   <script>
-    // Base URL for the local API
-    const baseUrl = 'http://localhost:3000';
+    // Function to make API call
+    async function makeApiCall(url, method, body = null) {
+      try {
+        const response = await fetch(url, {
+          method: method,
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: body ? JSON.stringify(body) : null
+        });
 
-    // Pagination API endpoint URL
-    const paginationUrl = `${baseUrl}/students`;
+        if (!response.ok) {
+          throw new Error('API request failed');
+        }
 
-    // Filtering API endpoint URL
-    const filteringUrl = `${baseUrl}/students/filter`;
+        const data = await response.json();
+        return data;
+      } catch (error) {
+        console.log(error);
+      }
+    }
 
     // Function to fetch students for pagination
     function fetchStudents() {
       const page = document.getElementById('page').value;
-      const url = `${paginationUrl}?page=${page}`;
+      const url = `http://localhost:3000/students?page=${page}`;
 
-      fetch(url)
-        .then(response => response.json())
+      makeApiCall(url, 'GET')
         .then(data => {
           const resultsContainer = document.getElementById('paginationResults');
           resultsContainer.innerHTML = '';
 
-          data.data.forEach(student => {
-            const listItem = document.createElement('li');
-            listItem.textContent = `${student.name} - Total Marks: ${student.totalMarks}`;
-            resultsContainer.appendChild(listItem);
-          });
-        })
-        .catch(error => console.log(error));
+          if (data && data.data) {
+            data.data.forEach(student => {
+              const listItem = document.createElement('li');
+              listItem.textContent = `${student.name} - Total Marks: ${student.totalMarks}`;
+              resultsContainer.appendChild(listItem);
+            });
+          }
+        });
     }
 
-    // Function to filter students by ID
-    function filterById() {
-      const id = document.getElementById('filterId').value;
-      const url = filteringUrl;
+   // Function to filter students by ID
+function filterById() {
+  const id = document.getElementById('filterId').value;
+  const url = `http://localhost:3000/students/filter`;
 
-      fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ filterValue: id })
-      })
-        .then(response => response.json())
-        .then(data => {
-          const resultsContainer = document.getElementById('filteringResults');
-          resultsContainer.innerHTML = '';
+  const requestBody = {
+    id: parseInt(id) // Assuming the ID should be sent as an integer
+  };
 
-          data.data.forEach(student => {
-            const listItem = document.createElement('li');
-            listItem.textContent = `${student.name} - Total Marks: ${student.totalMarks}`;
-            resultsContainer.appendChild(listItem);
-          });
-        })
-        .catch(error => console.log(error));
-    }
+  makeApiCall(url, 'POST', requestBody)
+    .then(data => {
+      const resultsContainer = document.getElementById('filteringResults');
+      resultsContainer.innerHTML = '';
+
+      if (data && data.data) {
+        data.data.forEach(student => {
+          const listItem = document.createElement('li');
+          listItem.textContent = `${student.name} - Total Marks: ${student.totalMarks}`;
+          resultsContainer.appendChild(listItem);
+        });
+      }
+    });
+}
+
 
     // Function to filter students by name
     function filterByName() {
       const name = document.getElementById('filterName').value;
-      const url = filteringUrl;
+      const url = `http://localhost:3000/students/filter`;
 
-      fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ filterValue: name })
-      })
-        .then(response => response.json())
+      makeApiCall(url, 'POST', { name: name })
         .then(data => {
           const resultsContainer = document.getElementById('filteringResults');
           resultsContainer.innerHTML = '';
 
-          data.data.forEach(student => {
-            const listItem = document.createElement('li');
-            listItem.textContent = `${student.name} - Total Marks: ${student.totalMarks}`;
-            resultsContainer.appendChild(listItem);
-          });
-        })
-       
+          if (data && data.data) {
+            data.data.forEach(student => {
+              const listItem = document.createElement('li');
+              listItem.textContent = `${student.name} - Total Marks: ${student.totalMarks}`;
+              resultsContainer.appendChild(listItem);
+            });
+          }
+        });
     }
+  </script>
+</body>
+
+</html>
+``
